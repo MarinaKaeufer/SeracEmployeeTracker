@@ -65,7 +65,32 @@ inquirer
         });
     }
     else if(answers.employee_choices === 'Add Role'){
-        
+        inquirer
+            .prompt([
+                {
+                    name: "role_title",
+                    type: "input",
+                    message: "What is roles's title?",
+                },
+                {
+                    name: "role_salary",
+                    type: "input",
+                    message: "What is role's salary?",
+                }
+            ])
+            .then((answer) => {
+                console.log("Role title and salary: ", answer.role_title, answer.role_salary);
+                const sql = `INSERT INTO roles (job_title, salary) 
+                   VALUES (?,?)`;
+                    const params = [answer.role_title, answer.role_salary];
+
+                connection.query(sql, params, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log("Success..." + result);
+                });
+            });
     }
     else if (answers.employee_choices === 'View All Departments'){
         connection.query('SELECT * FROM departments', (err, result) => {
@@ -76,7 +101,27 @@ inquirer
         });
     }
     else if (answers.employee_choices === 'Add Department'){
-        
+        inquirer
+            .prompt([
+                {
+                    name: "dept_name",
+                    type: "input",
+                    message: "What is department's name?",
+                }
+            ])
+            .then((answer) => {
+                console.log("Department name: ", answer.dept_name);
+                const sql = `INSERT INTO departments (dept_name) 
+                   VALUES (?)`;
+                    const params = [answer.dept_name];
+
+                connection.query(sql, params, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log("Success..." + result);
+                });
+            });
     } else {
 
     }
