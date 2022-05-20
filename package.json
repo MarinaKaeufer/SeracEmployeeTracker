@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/MarinaKaeufer/SeracEmployeeTracker#readme",
   "dependencies": {
+    "console.table": "^0.10.0",
     "inquirer": "^8.2.4",
     "mysql": "^2.18.1"
   }
