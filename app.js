@@ -26,7 +26,32 @@ inquirer
     console.info('Answer:', answers.employee_choices);
 
     if(answers.employee_choices === 'Add Employee') {
+        inquirer
+            .prompt([
+                {
+                    name: "first_name",
+                    type: "input",
+                    message: "What is employee's first name?",
+                },
+                {
+                    name: "last_name",
+                    type: "input",
+                    message: "What is employee's last name?",
+                },
+            ])
+            .then((answer) => {
+                console.log("Employee first name and last name: ", answer.first_name, answer.last_name);
+                const sql = `INSERT INTO employees (first_name, last_name) 
+                   VALUES (?,?)`;
+                    const params = [answer.first_name, answer.last_name];
 
+                connection.query(sql, params, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log("Success..." + result);
+                });
+            });
     }
     else if(answers.employee_choices === 'Update Employee Role'){
 
@@ -36,14 +61,19 @@ inquirer
             if (err) {
                 console.log(err);
             }
-            console.log(result);
+            console.table(result);
         });
     }
     else if(answers.employee_choices === 'Add Role'){
         
     }
     else if (answers.employee_choices === 'View All Departments'){
-        
+        connection.query('SELECT * FROM departments', (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+            console.table(result);
+        });
     }
     else if (answers.employee_choices === 'Add Department'){
         
