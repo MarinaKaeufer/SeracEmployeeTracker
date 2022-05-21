@@ -54,7 +54,38 @@ inquirer
             });
     }
     else if(answers.employee_choices === 'Update Employee Role'){
+        connection.query('SELECT * FROM employees', (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+            console.table(result);
+            inquirer
+            .prompt([
+                {
+                    name: "employee_id",
+                    type: "number",
+                    message: "What is the ID of the employee you would like to update?",
+                },
+                {
+                    name: "role_id",
+                    type: "number",
+                    message: "What is the ID of the role you would like to assign to this employee?",
+                },
+            ])
+            .then((answer) => {
+                console.log("Employee id name and role id: ", answer.employee_id, answer.role_id);
+                const sql = `UPDATE employees SET role_id = ${answer.role_id} 
+                   WHERE id = ${answer.employee_id} `;
 
+                connection.query(sql, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log("Success..." + result);
+                });
+            });
+        });
+        
     }
     else if(answers.employee_choices === 'View All Roles'){
         connection.query('SELECT * FROM roles', (err, result) => {
