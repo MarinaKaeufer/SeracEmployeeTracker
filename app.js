@@ -1,27 +1,31 @@
-const mysql = require('mysql2');
+// const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const inquirer = require('inquirer');
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'user',
-  password: 'password',
-  database: 'employees'
-});
+let connection;
 
-connection.connect((err) => {
-  if (err) throw err;
-  console.log('Connected to MySQL Server!');
-});
+async function startConnection(){
+    connection = await mysql.createConnection({
+        host: 'localhost',
+        user: 'user',
+        password: 'password',
+        database: 'employees'
+      });     
+}
+
+startConnection();
+
+// connection.connect((err) => {
+//   if (err) throw err;
+//   console.log('Connected to MySQL Server!');
+// });
 
 start();
 
 async function start(){
-
-
     let dontQuit = true;
 
     while(dontQuit){
-
         const answers = await inquirer
             .prompt([
             {
@@ -130,12 +134,12 @@ async function start(){
                     });
         }
         else if (answers.employee_choices === 'View All Departments'){
-            connection.query('SELECT * FROM departments', (err, result) => {
-                if (err) {
-                    console.log(err);
-                }
+            try {
+                const result = await connection.execute('SELECT * FROM departments');
                 console.table(result);
-            });
+            } catch(err){
+                console.log('Error ' + err);
+            } 
         }
         else if (answers.employee_choices === 'Add Department'){
             const answer = await inquirer
