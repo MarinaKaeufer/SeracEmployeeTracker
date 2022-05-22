@@ -2,6 +2,8 @@
 const mysql = require('mysql2/promise');
 const inquirer = require('inquirer');
 
+
+
 let connection;
 
 async function startConnection(){
@@ -66,10 +68,7 @@ async function start(){
                 
         }
         else if(answers.employee_choices === 'Update Employee Role'){
-            connection.query('SELECT * FROM employees', async (err, result) => {
-                if (err) {
-                    console.log(err);
-                }
+            const result = await connection.execute('SELECT * FROM employees');
                 console.table(result);
                 const answer = await inquirer
                 .prompt([
@@ -89,22 +88,16 @@ async function start(){
                     const sql = `UPDATE employees SET role_id = ${answer.role_id} 
                         WHERE id = ${answer.employee_id} `;
     
-                    connection.query(sql, (err, result) => {
-                        if (err) {
-                            console.log(err);
-                        }
-                        console.log("Success..." + result);
-                    });
-            });
-            
+                    const update_result = await connection.query(sql);
+                    console.log("Success..." + update_result);
         }
         else if(answers.employee_choices === 'View All Roles'){
-            connection.query('SELECT * FROM roles', (err, result) => {
-                if (err) {
-                    console.log(err);
-                }
-                console.table(result);
-            });
+            try {
+                const roles = await connection.execute('SELECT * FROM roles');
+                console.table(roles);
+            } catch(err){
+                console.log('Error ' + err);
+            }
         }
         else if(answers.employee_choices === 'Add Role'){
             const answer = await inquirer
