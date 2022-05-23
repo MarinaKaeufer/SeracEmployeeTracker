@@ -42,55 +42,174 @@ async function start(){
             ])
             console.info('Answer:', answers.employee_choices);
         if(answers.employee_choices === 'Add Employee') {
+
+
+
+            employeesQuery = () =>{
+                return new Promise((resolve, reject)=>{
+                    pool.query('SELECT * FROM employees',  (error, results)=>{
+                        if(error){
+                            return reject(error);
+                        }
+                        return resolve(results);
+                    });
+                });
+            };
+
+            try {
+                const employees = await employeesQuery();
+                console.table(employees);
+            } catch(err){
+                console.log('Error ' + err);
+            }
+
+            rolesQuery = () =>{
+                return new Promise((resolve, reject)=>{
+                    pool.query('SELECT * FROM roles',  (error, results)=>{
+                        if(error){
+                            return reject(error);
+                        }
+                        return resolve(results);
+                    });
+                });
+            };
+
+            try {
+                const roles = await rolesQuery();
+                console.table(roles);
+            } catch(err){
+                console.log('Error ' + err);
+            }
+
             const answer = await inquirer
                 .prompt([
                     {
                         name: "first_name",
                         type: "input",
-                        message: "What is employee's first name?",
+                        message: "What is employee's first name?"
                     },
                     {
                         name: "last_name",
                         type: "input",
-                        message: "What is employee's last name?",
-                    },
-                ])
-                
-                    console.log("Employee first name and last name: ", answer.first_name, answer.last_name);
-                    const sql = `INSERT INTO employees (first_name, last_name) 
-                        VALUES (?,?)`;
-                        const params = [answer.first_name, answer.last_name];
-    
-                    connection.query(sql, params, (err, result) => {
-                        if (err) {
-                            console.log(err);
-                        }
-                        console.log("Success..." + result);
-                    });
-        }
-        else if(answers.employee_choices === 'Update Employee Role'){
-            const result = await connection.execute('SELECT * FROM employees');
-                console.table(result);
-                const answer = await inquirer
-                .prompt([
-                    {
-                        name: "employee_id",
-                        type: "number",
-                        message: "What is the ID of the employee you would like to update?",
+                        message: "What is employee's last name?"
                     },
                     {
                         name: "role_id",
-                        type: "number",
-                        message: "What is the ID of the role you would like to assign to this employee?",
+                        type: "input",
+                        message: "What is role id?"
                     },
+                    {
+                        name: "manager_id",
+                        type: "input",
+                        message: "What is manager id?"
+                    }
                 ])
-                
-                    console.log("Employee id name and role id: ", answer.employee_id, answer.role_id);
-                    const sql = `UPDATE employees SET role_id = ${answer.role_id} 
-                        WHERE id = ${answer.employee_id} `;
+                console.log("Employee first name and last name: ", answer.first_name, answer.last_name);
+
+
+                // Get all roles and display their titles
+
+
+                const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) 
+                    VALUES (?,?,?,?)`;
+                const params = [answer.first_name, answer.last_name, answer.role_id, answer.manager_id];
+
+                connection.query(sql, params, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log("Success..." + result);
+                });
+        }
+        else if(answers.employee_choices === 'Update Employee Role'){
+            
+            
+            
+            // const result = await connection.execute('SELECT * FROM employees');
+            // console.table(result);
+
+
+            employeesQuery = () =>{
+                return new Promise((resolve, reject)=>{
+                    pool.query('SELECT * FROM employees',  (error, results)=>{
+                        if(error){
+                            return reject(error);
+                        }
+                        return resolve(results);
+                    });
+                });
+            };
+
+            try {
+                const employees = await employeesQuery();
+                console.table(employees);
+            } catch(err){
+                console.log('Error ' + err);
+            }
+
+            rolesQuery = () =>{
+                return new Promise((resolve, reject)=>{
+                    pool.query('SELECT * FROM roles',  (error, results)=>{
+                        if(error){
+                            return reject(error);
+                        }
+                        return resolve(results);
+                    });
+                });
+            };
+
+            try {
+                const roles = await rolesQuery();
+                console.table(roles);
+            } catch(err){
+                console.log('Error ' + err);
+            }
+
+
+
+
+            const answer = await inquirer
+            .prompt([
+                {
+                    name: "employee_id",
+                    type: "number",
+                    message: "What is the ID of the employee you would like to update?",
+                },
+                {
+                    name: "role_id",
+                    type: "number",
+                    message: "What is the ID of the role you would like to assign to this employee?",
+                },
+            ])
+            
+                console.log("Employee id name and role id: ", answer.employee_id, answer.role_id);
+
+
+
+                // const sql = `UPDATE employees SET role_id = ${answer.role_id} 
+                //     WHERE id = ${answer.employee_id}`;
+
+                // const update_result = await connection.query(sql);
+                // console.log("Success..." + update_result);
+
+                udpateEmployeeQuery = () =>{
+                    return new Promise((resolve, reject)=>{
+                        pool.query(`UPDATE employees SET role_id=${answer.role_id} WHERE id=${answer.employee_id}`,  (error, results)=>{
+                            if(error){
+                                return reject(error);
+                            }
+                            return resolve(results);
+                        });
+                    });
+                };
     
-                    const update_result = await connection.query(sql);
+                try {
+                    const update_result = await udpateEmployeeQuery();
                     console.log("Success..." + update_result);
+                } catch(err){
+                    console.log('Error ' + err);
+                }
+
         }
         else if(answers.employee_choices === 'View All Roles'){
             rolesQuery = () =>{
