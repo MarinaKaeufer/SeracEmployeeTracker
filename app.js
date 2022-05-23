@@ -1,26 +1,29 @@
-// const mysql = require('mysql2');
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2');
 const inquirer = require('inquirer');
 
 
 
 let connection;
+let pool;
 
-async function startConnection(){
+async function establishConnections(){
     connection = await mysql.createConnection({
         host: 'localhost',
         user: 'user',
         password: 'password',
         database: 'employees'
       });     
+    
+    pool = mysql.createPool({
+        host: 'localhost',
+        user: 'user',
+        password: 'password',
+        database: 'employees'
+    }); 
+    
 }
 
-startConnection();
-
-// connection.connect((err) => {
-//   if (err) throw err;
-//   console.log('Connected to MySQL Server!');
-// });
+establishConnections();
 
 start();
 
@@ -38,7 +41,6 @@ async function start(){
             },
             ])
             console.info('Answer:', answers.employee_choices);
-    
         if(answers.employee_choices === 'Add Employee') {
             const answer = await inquirer
                 .prompt([
@@ -65,7 +67,6 @@ async function start(){
                         }
                         console.log("Success..." + result);
                     });
-                
         }
         else if(answers.employee_choices === 'Update Employee Role'){
             const result = await connection.execute('SELECT * FROM employees');
@@ -92,8 +93,19 @@ async function start(){
                     console.log("Success..." + update_result);
         }
         else if(answers.employee_choices === 'View All Roles'){
+            rolesQuery = () =>{
+                return new Promise((resolve, reject)=>{
+                    pool.query('SELECT * FROM roles',  (error, results)=>{
+                        if(error){
+                            return reject(error);
+                        }
+                        return resolve(results);
+                    });
+                });
+            };
+
             try {
-                const roles = await connection.execute('SELECT * FROM roles');
+                const roles = await rolesQuery();
                 console.table(roles);
             } catch(err){
                 console.log('Error ' + err);
@@ -114,25 +126,38 @@ async function start(){
                     }
                 ])
                 
-                    console.log("Role title and salary: ", answer.role_title, answer.role_salary);
-                    const sql = `INSERT INTO roles (job_title, salary) 
-                        VALUES (?,?)`;
-                        const params = [answer.role_title, answer.role_salary];
-    
-                    connection.query(sql, params, (err, result) => {
-                        if (err) {
-                            console.log(err);
-                        }
-                        console.log("Success..." + result);
-                    });
+                console.log("Role title and salary: ", answer.role_title, answer.role_salary);
+                const sql = `INSERT INTO roles (job_title, salary) 
+                    VALUES (?,?)`;
+                    const params = [answer.role_title, answer.role_salary];
+
+                connection.query(sql, params, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log("Success..." + result);
+                });
         }
         else if (answers.employee_choices === 'View All Departments'){
+            deptsQuery = () =>{
+                return new Promise((resolve, reject)=>{
+                    pool.query('SELECT * FROM departments',  (error, results)=>{
+                        if(error){
+                            return reject(error);
+                        }
+                        return resolve(results);
+                    });
+                });
+            };
+
             try {
-                const result = await connection.execute('SELECT * FROM departments');
-                console.table(result);
+                const roles = await deptsQuery();
+                console.table(roles);
             } catch(err){
                 console.log('Error ' + err);
-            } 
+            }
+
+
         }
         else if (answers.employee_choices === 'Add Department'){
             const answer = await inquirer
